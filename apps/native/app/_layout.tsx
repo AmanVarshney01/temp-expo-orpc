@@ -13,9 +13,13 @@ import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 // import { queryClient } from "@/utils/trpc";
 import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/lib/use-color-scheme";
-import { ORPCContext, orpc, queryClient } from "@/utils/orpc";
-import React, { useRef } from "react";
+import { ORPCContext, link, queryClient } from "@/utils/orpc";
+import { createORPCClient } from "@orpc/client";
+import { createORPCReactQueryUtils } from "@orpc/react-query";
+import type { RouterClient } from "@orpc/server";
+import React, { useRef, useState } from "react";
 import { Platform } from "react-native";
+import type { appRouter } from "../../server/src/routers";
 
 const LIGHT_THEME: Theme = {
 	...DefaultTheme,
@@ -32,6 +36,10 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
+	const [client] = useState<RouterClient<typeof appRouter>>(() =>
+		createORPCClient(link),
+	);
+	const [orpc] = useState(() => createORPCReactQueryUtils(client));
 	const hasMounted = useRef(false);
 	const { colorScheme, isDarkColorScheme } = useColorScheme();
 	const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
@@ -56,8 +64,8 @@ export default function RootLayout() {
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ORPCContext.Provider value={orpc}>
-				<ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+			<ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+				<ORPCContext.Provider value={orpc}>
 					<StatusBar style={isDarkColorScheme ? "light" : "dark"} />
 					<GestureHandlerRootView style={{ flex: 1 }}>
 						<Stack>
@@ -68,8 +76,8 @@ export default function RootLayout() {
 							/>
 						</Stack>
 					</GestureHandlerRootView>
-				</ThemeProvider>
-			</ORPCContext.Provider>
+				</ORPCContext.Provider>
+			</ThemeProvider>
 		</QueryClientProvider>
 	);
 }

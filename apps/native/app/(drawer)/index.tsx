@@ -4,13 +4,15 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
-import { orpc, queryClient } from "@/utils/orpc";
+import { orpc, queryClient, useORPC } from "@/utils/orpc";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
 	const healthCheck = useQuery(orpc.healthCheck.queryOptions());
 	const privateData = useQuery(orpc.privateData.queryOptions());
 	const { data: session } = authClient.useSession();
+
+	console.log("healthCheck:", healthCheck);
 
 	return (
 		<Container>
@@ -19,6 +21,7 @@ export default function Home() {
 					<Text className="font-mono text-foreground text-3xl font-bold mb-4">
 						BETTER T STACK
 					</Text>
+					<Text>{healthCheck.data}</Text>
 					{session?.user ? (
 						<View className="mb-6 p-4 bg-card rounded-lg border border-border">
 							<View className="flex-row justify-between items-center mb-2">

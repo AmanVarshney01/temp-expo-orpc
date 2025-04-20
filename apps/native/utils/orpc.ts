@@ -1,3 +1,4 @@
+import { authClient } from "@/lib/auth-client";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { createORPCReactQueryUtils } from "@orpc/react-query";
@@ -27,11 +28,13 @@ export const queryClient = new QueryClient({
 
 export const link = new RPCLink({
 	url: `${process.env.EXPO_PUBLIC_SERVER_URL}/rpc`,
-	fetch(url, options) {
-		return fetch(url, {
-			...options,
-			credentials: "include",
-		});
+	headers() {
+		const headers = new Map<string, string>();
+		const cookies = authClient.getCookie();
+		if (cookies) {
+			headers.set("Cookie", cookies);
+		}
+		return Object.fromEntries(headers);
 	},
 });
 
