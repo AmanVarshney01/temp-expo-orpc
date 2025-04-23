@@ -8,6 +8,7 @@ import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { createContext, useContext } from "react";
 import { toast } from "sonner";
 import type { appRouter } from "../../server/src/routers";
+import { authClient } from "@/lib/auth-client";
 
 type ORPCReactUtils = RouterUtils<RouterClient<typeof appRouter>>;
 
@@ -28,25 +29,13 @@ export const queryClient = new QueryClient({
 
 export const link = new RPCLink({
   url: `${process.env.EXPO_PUBLIC_SERVER_URL}/rpc`,
-  fetch: async (input, init) => {
-    console.log("--- ORPC Request ---");
-    console.log("URL:", input);
-    console.log("Options:", init);
-    try {
-      const response = await fetch(input, init);
-      console.log("--- ORPC Response ---");
-      console.log("Status:", response.status, response.statusText);
-      const body = await response.text();
-      console.log("Body:", body);
-      console.log("--------------------");
-      console.log('headers:', response.headers);
-      return response;
-    } catch (error) {
-      console.error("--- ORPC Fetch Error ---");
-      console.error(error);
-      console.log("--------------------");
-      throw error;
+  headers() {
+    const headers = new Map<string, string>();
+    const cookies = authClient.getCookie();
+    if (cookies) {
+      headers.set("Cookie", cookies);
     }
+    return Object.fromEntries(headers);
   },
 });
 

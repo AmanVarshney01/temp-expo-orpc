@@ -1,29 +1,18 @@
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { Container } from "@/components/container";
-import { orpc } from "@/utils/orpc";
+import { orpc, queryClient } from "@/utils/orpc";
 import { useQuery } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
+import { SignIn } from "@/components/sign-in";
+import { SignUp } from "@/components/sign-up";
 
 export default function Home() {
-  const healthCheck = useQuery(orpc.healthCheck.queryOptions({
-    queryFn: async () => {
-      try {
-        console.log("healthCheck Start")
+  const healthCheck = useQuery(orpc.healthCheck.queryOptions());
+  const privateData = useQuery(orpc.privateData.queryOptions());
+  const { data: session } = authClient.useSession();
 
-        const result = await orpc.healthCheck.call()
-        console.log("healthCheck Result:", result)
-
-        return result;
-      } catch (e) {
-        console.log("healthCheck Error:", e)
-        throw e;
-      }
-    }
-  }));
-  // const privateData = useQuery(orpc.privateData.queryOptions());
-  // const { data: session } = authClient.useSession();
-
-  console.log("healthCheck:", healthCheck);
+  console.log(privateData)
 
   return (
     <Container>
@@ -32,8 +21,7 @@ export default function Home() {
           <Text className="font-mono text-foreground text-3xl font-bold mb-4">
             BETTER T STACK
           </Text>
-          <Text>{healthCheck.data}</Text>
-          {/* {session?.user ? (
+          {session?.user ? (
             <View className="mb-6 p-4 bg-card rounded-lg border border-border">
               <View className="flex-row justify-between items-center mb-2">
                 <Text className="text-foreground text-base">
@@ -55,8 +43,8 @@ export default function Home() {
                 <Text className="text-white font-medium">Sign Out</Text>
               </TouchableOpacity>
             </View>
-          ) : null} */}
-          {/* <View className="mb-6 rounded-lg border border-border p-4">
+          ) : null}
+          <View className="mb-6 rounded-lg border border-border p-4">
             <Text className="mb-3 font-medium text-foreground">API Status</Text>
             <View className="flex-row items-center gap-2">
               <View
@@ -71,8 +59,8 @@ export default function Home() {
                     : "API Disconnected"}
               </Text>
             </View>
-          </View> */}
-          {/* <View className="mb-6 rounded-lg border border-border p-4">
+          </View>
+          <View className="mb-6 rounded-lg border border-border p-4">
             <Text className="mb-3 font-medium text-foreground">
               Private Data
             </Text>
@@ -90,7 +78,6 @@ export default function Home() {
               <SignUp />
             </>
           )}
-        */}
         </View>
       </ScrollView>
     </Container>
